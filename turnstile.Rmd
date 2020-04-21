@@ -1,0 +1,108 @@
+---
+title: "mta_turnstile"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Elias Guerra
+
+This markdown is to explain how to analyze turnstile data from the MTA website in R. 
+
+Data can be found here: http://web.mta.info/developers/turnstile.html. 
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+
+mta <- read_csv("/Users/eliasguerra/Code/craft-mta-turnstile/data/mta_example14st.csv") 
+```
+
+Begin by loading the necessary libraries and reading in the data. I'm using the tidyverse packages for most of the analysis so that code looks different from base R. Next I'm going to clean up the data a bit. 
+
+Let's take a look at the whole data frame. 
+
+```{r}
+str(mta)
+```
+
+We're going to need to reformat the date. 
+
+``` {r}
+mta$DATE[2]
+
+mta_date <- as.character.Date(mta$DATE) %>% str_sub(1,10)
+mta_time <- as.character(mta$TIME) %>% str_sub(12,21)
+mta_dt <- paste(mta_date,"T",mta_time, sep = "") %>% lubridate::ymd_hms()
+
+mta$date_time <- mta_dt
+mta$just_date <- mta_date
+mta$just_time <- mta_time
+
+mta$date_time[2]
+```
+
+New look, same great taste.
+
+When you look at "ENTRIES" you see that they're not starting from 0 so we're going to fix that. 
+
+``` {r}
+head(mta$ENTRIES, 12)
+
+# Create new column "new.entries" and "new.exits" 
+# calculated from cumulative "ENTRIES"/"EXITS" for each station
+new_entries <- vector(length = nrow(mta))
+new_exits <- vector(length = nrow(mta))
+new_scp <- vector(length = nrow(mta)) # new_scp indicates device ID (dif turnstile?)
+for (i in 1:nrow(mta)) {
+  new_entries[i] <- mta$ENTRIES[i+1] - mta$ENTRIES[i]
+  new_exits[i] <- mta$EXITS[i+1] - mta$EXITS[i]
+  new_scp[i] <- mta$SCP[i+1] != mta$SCP[i]
+}
+
+mta$new_entries <- new_entries # Not the same as "ENTRIES" 
+mta$new_exits <- new_exits
+new_scp[1] <- TRUE
+mta$new_scp <- new_scp
+
+head(mta, 2)
+```
+
+
+``` {r}
+mta_cleanr <- mta %>%
+  filter(new_scp == F) %>% 
+  select(date_time,STATION, LINENAME, SCP, ENTRIES, new_entries, new_exits, just_date, just_time)
+head(mta_cleanr, 10)
+
+#This will take the total rides per day and the average rides every four hours. 
+mta_perday <-
+  mta_cleanr %>%
+  group_by(STATION, just_date) %>%
+  summarise(avg_entries = mean(new_entries), # avg is four each unit of time data was collected, four hours
+            total_entries = sum(new_entries),
+            avg_exits = mean(new_exits),
+            total_exits = sum(new_exits)) %>%
+  filter(just_date != "1899-12-31") # This date gets included for some reason
+head(mta_perday, 10)
+```
+
+We have a our data in a form we can use now.
+
+``` {r}
+head(mta_cleanr) #This is the cleaned up data
+```
+
+Time to graph it. 
+```{r}
+mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
+  mutate(month_day = str_sub(just_date, 6,10)) %>%
+  ggplot(aes(x = month_day, y = total_entries)) +
+  geom_bar(stat = "identity") +
+  ylab("Daily turnstiles entries") + xlab("Date") + 
+  ggtitle("Total daily turnstile entries at 14-Street Union Sq.", ) +
+  coord_flip() 
+```
+
