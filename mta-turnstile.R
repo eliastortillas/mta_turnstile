@@ -1,57 +1,33 @@
----
-title: "Analyzing MTA Turnstile data"
-date: "April 2020"
-output: 
-  github_document:
-    pandoc_args: --webtex
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-This markdown is to explain how to analyze turnstile data from the MTA website in R. 
-
-Data can be found here: http://web.mta.info/developers/turnstile.html. 
-
-```{r message=FALSE, warning=FALSE}
+# Call the necessary lirbaries
+# Primarily using dplyr and rest of tidyverse
 library(tidyverse)
 library(readxl)
 
-mta <- read_csv("/Users/eliasguerra/interactives/mta_turnstile/data/mta_example14st.csv") 
-# This is just a shortened file. You can find the full one in file /data. 
-```
+## IMPORT AND CLEAN THE DATA
 
-Begin by loading the necessary libraries and reading in the data. I'm using the tidyverse packages for most of the analysis so that code looks different from base R. Next I'm going to clean up the data a bit. 
-
-Let's take a look at the whole data frame. 
-
-```{r}
+setwd("/Users/eliasguerra/interactives/mta-turnstile") 
+list.files()
+mta <- read_excel("/Users/eliasguerra/interactives/mta-turnstile/data/turnstile-200222-200327.xlsx") # read_excel from readr
 str(mta)
-```
 
-We're going to need to reformat the date. 
+# mta_14st <- filter(mta, STATION == "14 ST-UNION SQ")
+# write_csv(mta_14st, "/Users/eliasguerra/interactives/mta-turnstile/data/mta_example14st.csv")
 
-``` {r}
-mta$DATE[2]
-
+# clean up the date and time
 mta_date <- as.character.Date(mta$DATE) %>% str_sub(1,10)
 mta_time <- as.character(mta$TIME) %>% str_sub(12,21)
 mta_dt <- paste(mta_date,"T",mta_time, sep = "") %>% lubridate::ymd_hms()
+
+# (show what they look like here)
+# idk why i make this another step i just like it this way
 
 mta$date_time <- mta_dt
 mta$just_date <- mta_date
 mta$just_time <- mta_time
 
+# new look, same great taste
 mta$date_time[2]
-```
 
-New look, same great taste.
-
-When you look at "ENTRIES" you see that they're not starting from 0 so we're going to fix that. 
-
-``` {r}
-head(mta$ENTRIES, 12)
 
 # Create new column "new.entries" and "new.exits" 
 # calculated from cumulative "ENTRIES"/"EXITS" for each station
@@ -61,7 +37,7 @@ new_scp <- vector(length = nrow(mta)) # new_scp indicates device ID (dif turnsti
 for (i in 1:nrow(mta)) {
   new_entries[i] <- mta$ENTRIES[i+1] - mta$ENTRIES[i]
   new_exits[i] <- mta$EXITS[i+1] - mta$EXITS[i]
-  new_scp[i] <- mta$SCP[i+1] != mta$SCP[i]
+  new_scp[i] <- mta$SCP[i+1] != mta$SCP[i] 
 }
 
 mta$new_entries <- new_entries # Not the same as "ENTRIES" 
@@ -69,11 +45,7 @@ mta$new_exits <- new_exits
 new_scp[1] <- TRUE
 mta$new_scp <- new_scp
 
-head(mta, 2)
-```
-
-
-``` {r}
+# Notice that the negative new entries/exits match new_scp (and I fixed one in line 43)
 mta_cleanr <- mta %>%
   filter(new_scp == F) %>% 
   select(date_time,STATION, LINENAME, SCP, ENTRIES, new_entries, new_exits, just_date, just_time)
@@ -89,16 +61,11 @@ mta_perday <-
             total_exits = sum(new_exits)) %>%
   filter(just_date != "1899-12-31") # This date gets included for some reason
 head(mta_perday, 10)
-```
 
-We have a our data in a form we can use now.
+# We have a our data in a form we can use now.
+head(mta_cleanr)
 
-``` {r}
-head(mta_cleanr) #This is the cleaned up data
-```
-
-Time to graph it. 
-```{r}
+# Time to graph to it.
 mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
   mutate(month_day = str_sub(just_date, 6,10)) %>%
   ggplot(aes(x = month_day, y = total_entries)) +
@@ -106,5 +73,15 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
   ylab("Daily turnstiles entries") + xlab("Date") + 
   ggtitle("Total daily turnstile entries at 14-Street Union Sq.", ) +
   coord_flip() 
-```
 
+
+
+
+
+
+
+
+  
+
+# Average traffic at station per day
+# Compare cumulative hourly over a few days
