@@ -136,4 +136,16 @@ It's really bad:
 unique(overlapping_stations) %>% sort()
 ```
 
+Let's look at stations that include "42"
+
+```{r}
+st42 <- overlapping_stations[str_which(overlapping_stations, "42")]
+st42
+```
+And these are the unique station names. 
+```{r}
+unique(st42)
+```
+
+
 

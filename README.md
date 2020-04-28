@@ -402,3 +402,23 @@ unique(overlapping_stations) %>% sort()
     ## [364] "WILSON AVE"      "WINTHROP ST"     "WOODHAVEN BLVD" 
     ## [367] "WOODLAWN ROAD"   "WORLD TRADE CTR" "YORK ST"        
     ## [370] "ZEREGA AVE"
+
+Let’s look at stations that include “42”
+
+``` r
+st42 <- overlapping_stations[str_which(overlapping_stations, "42")]
+st42
+```
+
+    ## [1] "42 ST-PA BUS TE" "42 ST-TIMES SQ"  "42 ST-BRYANT PK" "42 ST-GRD CNTRL"
+    ## [5] "242 ST"
+
+And these are the unique station
+    names.
+
+``` r
+unique(st42)
+```
+
+    ## [1] "42 ST-PA BUS TE" "42 ST-TIMES SQ"  "42 ST-BRYANT PK" "42 ST-GRD CNTRL"
+    ## [5] "242 ST"

@@ -90,6 +90,11 @@ mta_stations <- mta_perday$STATION %>% unique %>% data_frame(station_names=.)
 geo_station <- geo_income$station_name %>% unique %>% data_frame(station_names=.)
 overlapping_stations <- c(mta_stations$station_names, geo_station$station_names)
 unique(overlapping_stations) %>% sort()
+
+# Let's look at stations that include "42"
+st42 <- overlapping_stations[str_which(overlapping_stations, "42")]
+unique(st42)
+
   
 
 # Average traffic at station per day
