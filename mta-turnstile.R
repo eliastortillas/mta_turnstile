@@ -5,9 +5,9 @@ library(readxl)
 
 ## IMPORT AND CLEAN THE DATA
 
-setwd("/Users/eliasguerra/interactives/mta-turnstile") 
+setwd("~/interactives/mta_turnstile") 
 list.files()
-mta <- read_excel("/Users/eliasguerra/interactives/mta-turnstile/data/turnstile-200222-200327.xlsx") # read_excel from readr
+mta <- read_excel("/Users/eliasguerra/interactives/mta_turnstile/data/turnstile-200222-200327.xlsx") # read_excel from readr
 str(mta)
 
 # mta_14st <- filter(mta, STATION == "14 ST-UNION SQ")
@@ -45,6 +45,8 @@ mta$new_exits <- new_exits
 new_scp[1] <- TRUE
 mta$new_scp <- new_scp
 
+
+
 # Notice that the negative new entries/exits match new_scp (and I fixed one in line 43)
 mta_cleanr <- mta %>%
   filter(new_scp == F) %>% 
@@ -71,16 +73,23 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
   ggplot(aes(x = month_day, y = total_entries)) +
   geom_bar(stat = "identity") +
   ylab("Daily turnstiles entries") + xlab("Date") + 
-  ggtitle("Total daily turnstile entries at 14-Street Union Sq.", ) +
+  ggtitle("Total daily turnstile entries at 14-Street Union Sq.") +
   coord_flip() 
 
 
+# MTA geocoded data from Christopher Whong 
+# https://github.com/chriswhong/nycturnstiles/blob/master/geocoded.csv
+data_files <- list.files("~/interactives/mta_turnstile/data")
+setwd("~/interactives/mta_turnstile/data")
+geo_income <- read_csv(data_files[1])
+View(head(geo_income))
+View(head(mta_perday))
+select(geo_income, -the_geom)
 
-
-
-
-
-
+mta_stations <- mta_perday$STATION %>% unique %>% data_frame(station_names=.) 
+geo_station <- geo_income$station_name %>% unique %>% data_frame(station_names=.)
+overlapping_stations <- c(mta_stations$station_names, geo_station$station_names)
+unique(overlapping_stations) %>% sort()
   
 
 # Average traffic at station per day
