@@ -155,14 +155,14 @@ mta_cleanr <- read_csv("~/interactives/mta_turnstile/data/export/mta_clean.csv")
     ## Parsed with column specification:
     ## cols(
     ##   date_time = col_datetime(format = ""),
-    ##   STATION = col_character(),
-    ##   LINENAME = col_character(),
-    ##   SCP = col_character(),
-    ##   ENTRIES = col_double(),
-    ##   new_entries = col_double(),
-    ##   new_exits = col_double(),
-    ##   just_date = col_date(format = ""),
-    ##   just_time = col_time(format = "")
+    ##   station_name = col_character(),
+    ##   train_lines = col_character(),
+    ##   scp = col_character(),
+    ##   entries_obsolete = col_double(),
+    ##   entries = col_double(),
+    ##   exits = col_double(),
+    ##   date = col_date(format = ""),
+    ##   time = col_time(format = "")
     ## )
 
 ``` r
@@ -170,58 +170,58 @@ mta_cleanr
 ```
 
     ## # A tibble: 910,221 x 9
-    ##    date_time           STATION LINENAME SCP   ENTRIES new_entries new_exits
-    ##    <dttm>              <chr>   <chr>    <chr>   <dbl>       <dbl>     <dbl>
-    ##  1 2020-03-27 04:00:00 59 ST   NQR456W  '02-… 7412671           9        21
-    ##  2 2020-03-27 08:00:00 59 ST   NQR456W  '02-… 7412680          19        24
-    ##  3 2020-03-27 12:00:00 59 ST   NQR456W  '02-… 7412699          49        10
-    ##  4 2020-03-27 16:00:00 59 ST   NQR456W  '02-… 7412748          59         9
-    ##  5 2020-03-27 00:00:00 59 ST   NQR456W  '02-… 6588992           1         2
-    ##  6 2020-03-27 04:00:00 59 ST   NQR456W  '02-… 6588993           4        16
-    ##  7 2020-03-27 08:00:00 59 ST   NQR456W  '02-… 6588997           7         8
-    ##  8 2020-03-27 12:00:00 59 ST   NQR456W  '02-… 6589004          46         8
-    ##  9 2020-03-27 16:00:00 59 ST   NQR456W  '02-… 6589050          46         2
-    ## 10 2020-03-27 00:00:00 59 ST   NQR456W  '02-… 1376224           0         1
-    ## # … with 910,211 more rows, and 2 more variables: just_date <date>,
-    ## #   just_time <time>
+    ##    date_time           station_name train_lines scp   entries_obsolete
+    ##    <dttm>              <chr>        <chr>       <chr>            <dbl>
+    ##  1 2020-03-27 04:00:00 59 ST        NQR456W     '02-…          7412671
+    ##  2 2020-03-27 08:00:00 59 ST        NQR456W     '02-…          7412680
+    ##  3 2020-03-27 12:00:00 59 ST        NQR456W     '02-…          7412699
+    ##  4 2020-03-27 16:00:00 59 ST        NQR456W     '02-…          7412748
+    ##  5 2020-03-27 00:00:00 59 ST        NQR456W     '02-…          6588992
+    ##  6 2020-03-27 04:00:00 59 ST        NQR456W     '02-…          6588993
+    ##  7 2020-03-27 08:00:00 59 ST        NQR456W     '02-…          6588997
+    ##  8 2020-03-27 12:00:00 59 ST        NQR456W     '02-…          6589004
+    ##  9 2020-03-27 16:00:00 59 ST        NQR456W     '02-…          6589050
+    ## 10 2020-03-27 00:00:00 59 ST        NQR456W     '02-…          1376224
+    ## # … with 910,211 more rows, and 4 more variables: entries <dbl>,
+    ## #   exits <dbl>, date <date>, time <time>
 
 ``` r
 #This will take the total rides per day and the average rides every four hours. 
 mta_perday <-
   mta_cleanr %>%
-  group_by(STATION, just_date) %>%
-  summarise(avg_entries = mean(new_entries), # avg is four each unit of time data was collected, four hours
-            total_entries = sum(new_entries),
-            avg_exits = mean(new_exits),
-            total_exits = sum(new_exits)) %>%
-  filter(just_date != "1899-12-31") # This date gets included for some reason
+  group_by(station_name, date) %>%
+  summarise(avg_entries = mean(entries), # avg is four each unit of time data was collected, four hours
+            total_entries = sum(entries),
+            avg_exits = mean(exits),
+            total_exits = sum(exits)) %>%
+  filter(date != "1899-12-31") # This date gets included for some reason
 head(mta_perday, 10)
 ```
 
     ## # A tibble: 10 x 6
-    ## # Groups:   STATION [1]
-    ##    STATION just_date  avg_entries total_entries avg_exits total_exits
-    ##    <chr>   <date>           <dbl>         <dbl>     <dbl>       <dbl>
-    ##  1 1 AV    2020-02-22       113.           6015     148.         7832
-    ##  2 1 AV    2020-02-23        28.1          4273      38.5        5846
-    ##  3 1 AV    2020-02-24       267.          14697     372.        20436
-    ##  4 1 AV    2020-02-25       283.          15553     389.        21402
-    ##  5 1 AV    2020-02-26       294.          16167     375.        20627
-    ##  6 1 AV    2020-02-27       299.          16453     403.        22173
-    ##  7 1 AV    2020-02-28       309.          16985     415.        22799
-    ##  8 1 AV    2020-02-29       109.           6000     146.         8005
-    ##  9 1 AV    2020-03-01        77.0          4234     104.         5713
-    ## 10 1 AV    2020-03-02       270.          14854     356.        19593
+    ## # Groups:   station_name [1]
+    ##    station_name date       avg_entries total_entries avg_exits total_exits
+    ##    <chr>        <date>           <dbl>         <dbl>     <dbl>       <dbl>
+    ##  1 1 AV         2020-02-22       113.           6015     148.         7832
+    ##  2 1 AV         2020-02-23        28.1          4273      38.5        5846
+    ##  3 1 AV         2020-02-24       267.          14697     372.        20436
+    ##  4 1 AV         2020-02-25       283.          15553     389.        21402
+    ##  5 1 AV         2020-02-26       294.          16167     375.        20627
+    ##  6 1 AV         2020-02-27       299.          16453     403.        22173
+    ##  7 1 AV         2020-02-28       309.          16985     415.        22799
+    ##  8 1 AV         2020-02-29       109.           6000     146.         8005
+    ##  9 1 AV         2020-03-01        77.0          4234     104.         5713
+    ## 10 1 AV         2020-03-02       270.          14854     356.        19593
 
 Time to graph it.
 
 ``` r
-mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
-  mutate(month_day = str_sub(just_date, 6,10)) %>%
+mta_perday %>% filter(station_name == "14 ST-UNION SQ") %>%
+  mutate(month_day = str_sub(date, 6,10)) %>%
   ggplot(aes(x = month_day, y = total_entries)) +
   geom_bar(stat = "identity") +
   ylab("Daily turnstiles entries") + xlab("Date") + 
-  ggtitle("Total daily turnstile entries at 14-Street Union Sq.", ) +
+  ggtitle("Total daily turnstile entries at 14-Street Union Sq.") +
   coord_flip() 
 ```
 
@@ -252,13 +252,20 @@ geo_income <- read_csv("~/interactives/mta_turnstile/data/2018-med-income-ACS_by
     ##   ct_shape_area = col_double()
     ## )
 
+``` r
+geo_income$income <- geo_income$ct_median_income_2018_ACS %>% 
+  str_remove("[:punct:]") %>%
+  str_sub(2) %>%
+  as.numeric()
+```
+
 Let’s compare the two data sets we’re working with rn.
 
 ``` r
 head(select(geo_income, -the_geom)) #left out one column for mapping
 ```
 
-    ## # A tibble: 6 x 11
+    ## # A tibble: 6 x 12
     ##     lat  long station_name borough train_lines service unit  `c-a`
     ##   <dbl> <dbl> <chr>        <chr>   <chr>       <chr>   <chr> <chr>
     ## 1  40.5 -74.2 ELTINGVILLE… Staten… Z           SRT     X002  R470 
@@ -267,33 +274,41 @@ head(select(geo_income, -the_geom)) #left out one column for mapping
     ## 4  40.6 -74.1 ST. GEORGE   Staten… 1           SRT     S101A R070 
     ## 5  40.6 -74.0 BAY RIDGE-9… Brookl… R           BMT     C027  R216 
     ## 6  40.6 -74.0 BAY RIDGE-9… Brookl… R           BMT     C028  R216 
-    ## # … with 3 more variables: ct_median_income_2018_ACS <chr>,
-    ## #   ct_shape_leng <dbl>, ct_shape_area <dbl>
+    ## # … with 4 more variables: ct_median_income_2018_ACS <chr>,
+    ## #   ct_shape_leng <dbl>, ct_shape_area <dbl>, income <dbl>
 
 ``` r
 head(mta_perday)
 ```
 
     ## # A tibble: 6 x 6
-    ## # Groups:   STATION [1]
-    ##   STATION just_date  avg_entries total_entries avg_exits total_exits
-    ##   <chr>   <date>           <dbl>         <dbl>     <dbl>       <dbl>
-    ## 1 1 AV    2020-02-22       113.           6015     148.         7832
-    ## 2 1 AV    2020-02-23        28.1          4273      38.5        5846
-    ## 3 1 AV    2020-02-24       267.          14697     372.        20436
-    ## 4 1 AV    2020-02-25       283.          15553     389.        21402
-    ## 5 1 AV    2020-02-26       294.          16167     375.        20627
-    ## 6 1 AV    2020-02-27       299.          16453     403.        22173
+    ## # Groups:   station_name [1]
+    ##   station_name date       avg_entries total_entries avg_exits total_exits
+    ##   <chr>        <date>           <dbl>         <dbl>     <dbl>       <dbl>
+    ## 1 1 AV         2020-02-22       113.           6015     148.         7832
+    ## 2 1 AV         2020-02-23        28.1          4273      38.5        5846
+    ## 3 1 AV         2020-02-24       267.          14697     372.        20436
+    ## 4 1 AV         2020-02-25       283.          15553     389.        21402
+    ## 5 1 AV         2020-02-26       294.          16167     375.        20627
+    ## 6 1 AV         2020-02-27       299.          16453     403.        22173
 
 I’m going to want to combine the data by station name so let’s compare
 the names in both data
 frames.
 
 ``` r
-mta_stations <- mta_cleanr$STATION %>% unique %>% tibble(station_names=.) 
-geo_station <- geo_income$station_name %>% unique %>% tibble(station_names=.)
-both_station_names <- c(mta_stations$station_names, geo_station$station_names) 
-sort(both_station_names)
+mta_stations <- mta_cleanr$station_name %>% unique %>% data_frame(station_name=.) 
+```
+
+    ## Warning: `data_frame()` is deprecated as of tibble 1.1.0.
+    ## Please use `tibble()` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_warnings()` to see where this warning was generated.
+
+``` r
+geo_station <- geo_income$station_name %>% unique %>% data_frame(station_name=.)
+both_station_names <- c(mta_stations$station_name, geo_station$station_name) %>% sort()
+both_station_names
 ```
 
     ##   [1] "1"               "1 AV"            "1 AVE"          
@@ -528,7 +543,7 @@ Most of them look the same but a lot are different. Let’s look at
 stations that include “PARKSIDE”.
 
 ``` r
-both_station_names[str_which(both_station_names, "PARKSIDE")]
+both_station_names[str_which(both_station_names, "PARKSIDE")] 
 ```
 
     ## [1] "PARKSIDE AV"  "PARKSIDE AVE"
@@ -541,45 +556,75 @@ it already has an “AV” inside).This is makes it a little harder.
 #need to switch "av" to "ave" in mta data. idk why this is so hard.
 # First we need to check how "av" is written and not correct the "aves"
 mta_cleanr$ave_true <- FALSE
-mta_cleanr$ave_true[str_which(mta_cleanr$STATION, "AVE")] <- TRUE
+mta_cleanr$ave_true[str_which(mta_cleanr$station_name, "AVE")] <- TRUE
 mta_cleanr$av_true <- FALSE
-mta_cleanr$av_true[str_which(mta_cleanr$STATION, "AV")] <- TRUE 
+mta_cleanr$av_true[str_which(mta_cleanr$station_name, "AV")] <- TRUE 
 mta_cleanr$av_not_ave <- FALSE
 mta_cleanr$av_not_ave[which(mta_cleanr$av_true == TRUE & mta_cleanr$ave_true == FALSE)] <- TRUE
-mta_cleanr$STATION[mta_cleanr$av_not_ave == T] <-
-  str_replace_all(mta_cleanr$STATION[mta_cleanr$av_not_ave == T], "AV", "AVE")
-```
-
-Let’s take a peak at our
-product
-
-``` r
-mta_cleanr %>% slice(str_which(mta_cleanr$STATION, "AVE")) %>% select(date_time, STATION) %>% sample_n(20)
+mta_cleanr$station_name[mta_cleanr$av_not_ave == T] <-
+  str_replace_all(mta_cleanr$station_name[mta_cleanr$av_not_ave == T], "AV", "AVE")
+mta_cleanr %>% 
+  slice(str_which(mta_cleanr$station_name, "AVE")) %>% 
+  select(date_time, station_name) %>% 
+  sample_n(20)
 ```
 
     ## # A tibble: 20 x 2
-    ##    date_time           STATION         
+    ##    date_time           station_name    
     ##    <dttm>              <chr>           
-    ##  1 2020-03-24 17:00:00 FLUSHING AVE    
-    ##  2 2020-03-07 11:00:00 METROPOLITAN AVE
-    ##  3 2020-03-22 00:00:00 BAY RIDGE AVE   
-    ##  4 2020-03-04 03:00:00 AVENUE P        
-    ##  5 2020-03-13 08:00:00 WOODHAVEN BLVD  
-    ##  6 2020-03-27 13:00:00 LAFAYETTE AVE   
-    ##  7 2020-03-17 16:00:00 LEXINGTON AVE/53
-    ##  8 2020-03-09 00:00:00 MORGAN AVE      
-    ##  9 2020-02-25 15:00:00 18 AVE          
-    ## 10 2020-03-14 17:00:00 FLUSHING AVE    
-    ## 11 2020-03-27 13:00:00 DITMAS AVE      
-    ## 12 2020-03-01 04:00:00 LAFAYETTE AVE   
-    ## 13 2020-03-20 17:00:00 UTICA AVE       
-    ## 14 2020-03-27 05:00:00 WOODHAVEN BLVD  
-    ## 15 2020-03-18 13:00:00 RALPH AVE       
-    ## 16 2020-03-24 12:00:00 CLINTON-WASH AVE
-    ## 17 2020-02-22 03:00:00 PROSPECT AVE    
-    ## 18 2020-03-22 05:00:00 NEW UTRECHT AVE 
-    ## 19 2020-02-24 07:00:00 MORGAN AVE      
-    ## 20 2020-03-12 08:00:00 AVENUE H
+    ##  1 2020-02-28 04:00:00 FLUSHING AVE    
+    ##  2 2020-02-24 08:00:00 96 ST-2 AVE     
+    ##  3 2020-03-12 17:00:00 7 AVE           
+    ##  4 2020-03-16 04:00:00 BEDFORD AVE     
+    ##  5 2020-03-24 13:00:00 VAN SICLEN AVE  
+    ##  6 2020-02-24 19:00:00 57 ST-7 AVE     
+    ##  7 2020-02-22 19:00:00 EUCLID AVE      
+    ##  8 2020-03-27 17:00:00 NEW UTRECHT AVE 
+    ##  9 2020-03-27 05:00:00 7 AVE           
+    ## 10 2020-03-22 05:00:00 NEW UTRECHT AVE 
+    ## 11 2020-03-07 03:00:00 BEDFORD AVE     
+    ## 12 2020-03-22 01:00:00 DITMAS AVE      
+    ## 13 2020-02-24 16:00:00 8 AVE           
+    ## 14 2020-02-24 07:00:00 WOODHAVEN BLVD  
+    ## 15 2020-02-28 03:00:00 18 AVE          
+    ## 16 2020-03-25 09:00:00 RALPH AVE       
+    ## 17 2020-03-27 16:00:00 CLINTON-WASH AVE
+    ## 18 2020-03-24 13:00:00 8 AVE           
+    ## 19 2020-03-18 14:00:00 5 AVE/53 ST     
+    ## 20 2020-03-18 13:00:00 LAFAYETTE AVE
+
+Let’s take a peak at our product
+
+``` r
+mta_cleanr %>% 
+  slice(str_which(mta_cleanr$station_name, "AVE")) %>% 
+  select(date_time, station_name) %>% 
+  sample_n(20)
+```
+
+    ## # A tibble: 20 x 2
+    ##    date_time           station_name    
+    ##    <dttm>              <chr>           
+    ##  1 2020-02-29 12:00:00 72 ST-2 AVE     
+    ##  2 2020-02-23 07:00:00 2 AVE           
+    ##  3 2020-03-02 15:00:00 1 AVE           
+    ##  4 2020-03-25 17:00:00 AVENUE N        
+    ##  5 2020-03-15 17:00:00 FRANKLIN AVE    
+    ##  6 2020-03-14 13:00:00 WOODHAVEN BLVD  
+    ##  7 2020-02-29 00:00:00 CLINTON-WASH AVE
+    ##  8 2020-02-24 03:00:00 AVENUE H        
+    ##  9 2020-03-23 01:00:00 NORWOOD AVE     
+    ## 10 2020-02-29 16:00:00 UTICA AVE       
+    ## 11 2020-03-05 08:18:30 96 ST-2 AVE     
+    ## 12 2020-03-25 00:00:00 AVENUE M        
+    ## 13 2020-02-25 00:00:00 DITMAS AVE      
+    ## 14 2020-03-23 08:00:00 18 AVE          
+    ## 15 2020-03-15 17:00:00 8 AVE           
+    ## 16 2020-03-16 05:00:00 7 AVE           
+    ## 17 2020-02-22 00:00:00 CLINTON-WASH AVE
+    ## 18 2020-03-27 09:00:00 VAN SICLEN AVE  
+    ## 19 2020-03-04 07:00:00 NOSTRAND AVE    
+    ## 20 2020-03-01 19:00:00 WOODHAVEN BLVD
 
 Looks good. Now I’m going to join the MTA turnstile data with the
 geo-income data. Not all of is going to join correctly so I’ll make a
@@ -588,62 +633,125 @@ just the ones that
 didn’t.
 
 ``` r
-mta_geo_messy <- full_join(x = mta_cleanr %>% select(station_name = STATION, train_lines = LINENAME, just_date,new_entries),
-                     y = geo_income %>% select(station_name, train_lines, income = ct_median_income_2018_ACS), 
-                     by = c("station_name","train_lines"))
-mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(new_entries))
-sample_n(mta_geo, 20)
-```
-
-    ## # A tibble: 20 x 5
-    ##    station_name    train_lines just_date  new_entries income  
-    ##    <chr>           <chr>       <date>           <dbl> <chr>   
-    ##  1 FULTON ST       ACJZ2345    2020-03-05           2 $159,911
-    ##  2 CHURCH AVE      BQ          2020-03-02          85 $55,272 
-    ##  3 34 ST-PENN STA  ACE         2020-02-24          27 $100,813
-    ##  4 NOSTRAND AVE    AC          2020-03-25          19 $44,973 
-    ##  5 FT HAMILTON PKY N           2020-03-16         136 $60,833 
-    ##  6 20 AVE          D           2020-02-29         247 $0      
-    ##  7 34 ST-PENN STA  ACE         2020-03-03          28 $100,813
-    ##  8 BAY RIDGE-95 ST R           2020-03-24           0 $34,167 
-    ##  9 TWENTY THIRD ST 1           2020-02-26           1 $121,183
-    ## 10 BOWLING GREEN   45          2020-02-26           1 $108,250
-    ## 11 111 ST          J           2020-02-29          65 $124,699
-    ## 12 34 ST-PENN STA  ACE         2020-03-14           0 $100,813
-    ## 13 FULTON ST       ACJZ2345    2020-03-04         318 $159,911
-    ## 14 86 ST           BC          2020-03-24           0 $15,455 
-    ## 15 EUCLID AVE      AC          2020-03-20           0 $35,338 
-    ## 16 34 ST-PENN STA  ACE         2020-02-24         133 $100,813
-    ## 17 ST. GEORGE      1           2020-03-12          39 $77,917 
-    ## 18 75 AVE          EF          2020-03-15           0 $86,750 
-    ## 19 50 ST           CE          2020-03-13          13 $31,250 
-    ## 20 DEKALB AVE      BDNQR       2020-03-15          31 $105,042
-
-``` r
-mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(new_entries))
+mta_geo_messy <- full_join(x = mta_cleanr %>% select(date_time, station_name, train_lines, entries, exits, date, time, scp),
+                           y = geo_income %>% select(station_name, borough,train_lines, long, lat, income, service, unit), 
+                           by = c("station_name","train_lines"))
+mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(entries))
+mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(entries))
 sample_n(mta_geo_unjoined, 20)
 ```
 
-    ## # A tibble: 20 x 5
-    ##    station_name     train_lines  just_date  new_entries income
-    ##    <chr>            <chr>        <date>           <dbl> <chr> 
-    ##  1 JKSN HT-ROOSVLT  EFMR7        2020-03-14         137 <NA>  
-    ##  2 45               IRT          1899-12-31          15 <NA>  
-    ##  3 1                IRT          1899-12-31     -389671 <NA>  
-    ##  4 1ABCD            IRT          1899-12-31          12 <NA>  
-    ##  5 7                IRT          1899-12-31           0 <NA>  
-    ##  6 4AVE-9 ST        DFGMNR       2020-03-23          32 <NA>  
-    ##  7 6                IRT          1899-12-31           1 <NA>  
-    ##  8 JAMAICA 179 ST   F            2020-03-25           8 <NA>  
-    ##  9 1AC              IRT          1899-12-31       -9401 <NA>  
-    ## 10 PATH NEW WTC     1            2020-03-07           0 <NA>  
-    ## 11 GRD CNTRL-42 ST  4567S        2020-03-19         222 <NA>  
-    ## 12 NEWARK HW BMEBE  1            2020-03-25           0 <NA>  
-    ## 13 1                IRT          1899-12-31           6 <NA>  
-    ## 14 42 ST-PORT AUTH  ACENQRS1237W 2020-03-01         290 <NA>  
-    ## 15 6                IRT          1899-12-31       58628 <NA>  
-    ## 16 METROPOLITAN AVE GL           2020-02-23          17 <NA>  
-    ## 17 BOROUGH HALL     2345R        2020-03-09         432 <NA>  
-    ## 18 23               IRT          1899-12-31         104 <NA>  
-    ## 19 34               IRT          1899-12-31           0 <NA>  
-    ## 20 LEXINGTON AVE/63 F            2020-03-19           3 <NA>
+    ## # A tibble: 20 x 14
+    ##    date_time           station_name train_lines entries exits date      
+    ##    <dttm>              <chr>        <chr>         <dbl> <dbl> <date>    
+    ##  1 NA                  2345ACJZ     IRT               0    NA 1899-12-31
+    ##  2 NA                  7            IRT              41    NA 1899-12-31
+    ##  3 NA                  456JZ        IRT               4    NA 1899-12-31
+    ##  4 NA                  25           IRT             157    NA 1899-12-31
+    ##  5 2020-03-16 09:00:00 14 ST-UNION… LNQR456W        367   410 2020-03-16
+    ##  6 NA                  7            IRT               2    NA 1899-12-31
+    ##  7 NA                  25           IRT              33    NA 1899-12-31
+    ##  8 NA                  6            IRT              50    NA 1899-12-31
+    ##  9 NA                  7            IRT               4    NA 1899-12-31
+    ## 10 NA                  7            IRT              93    NA 1899-12-31
+    ## 11 NA                  1            IRT              14    NA 1899-12-31
+    ## 12 2020-03-01 17:07:36 JOURNAL SQU… 1               109    11 2020-03-01
+    ## 13 2020-02-27 08:00:00 FRESH POND … M               146    92 2020-02-27
+    ## 14 2020-03-19 12:00:00 WORLD TRADE… ACE23            22     3 2020-03-19
+    ## 15 NA                  1            IRT             736    NA 1899-12-31
+    ## 16 NA                  2345S        IRT              41    NA 1899-12-31
+    ## 17 2020-03-10 00:00:00 47-50 STS R… BDFM             85    19 2020-03-10
+    ## 18 2020-03-11 04:00:00 ATL AVE-BAR… BDNQR2345        80    82 2020-03-11
+    ## 19 NA                  1AC          IRT              98    NA 1899-12-31
+    ## 20 NA                  45           IRT              12    NA 1899-12-31
+    ## # … with 8 more variables: time <time>, scp <chr>, borough <chr>,
+    ## #   long <dbl>, lat <dbl>, income <dbl>, service <chr>, unit <chr>
+
+Now we’ve got a starting point for the turnstile data with geo-income.
+We’re probably going to have to go back and fix the unjoined data.
+
+Based on the above graph there’s a huge drop between February and March.
+I’m going to compare the 27th of each month.
+
+``` r
+mtageo_day <- mta_geo_messy %>% 
+  group_by(date, station_name, train_lines) %>%
+  summarise(total_entries = sum(entries), 
+            total_exits = sum(exits),
+            income = income[1], 
+            long= long[1], 
+            lat = lat[1]) %>%
+  filter(date == "2020-02-27" | date == "2020-03-27") %>% # We're going to compare these two days
+  filter(!is.na(income) & !is.na(long) & !is.na(lat)) %>%
+  arrange(station_name)
+head(mtageo_day)
+```
+
+    ## # A tibble: 6 x 8
+    ## # Groups:   date, station_name [6]
+    ##   date       station_name train_lines total_entries total_exits income
+    ##   <date>     <chr>        <chr>               <dbl>       <dbl>  <dbl>
+    ## 1 2020-02-27 1 AVE        L                   32906       44346  74965
+    ## 2 2020-03-27 1 AVE        L                    3472        5790  74965
+    ## 3 2020-02-27 103 ST       BC                   4390        2551  15455
+    ## 4 2020-03-27 103 ST       BC                    653         531  15455
+    ## 5 2020-02-27 104 ST       JZ                   2706        1302  83571
+    ## 6 2020-03-27 104 ST       JZ                    442         208  83571
+    ## # … with 2 more variables: long <dbl>, lat <dbl>
+
+What I want to do next is turn february and march into separate columns
+and then take the
+difference.
+
+``` r
+mta_daydif <- mtageo_day %>%  pivot_wider(names_from = date, values_from = c(total_entries, total_exits)) 
+colnames(mta_daydif)  <- colnames(mta_daydif) %>% str_replace_all("-","_")  
+head(mta_daydif,6)
+```
+
+    ## # A tibble: 6 x 9
+    ## # Groups:   station_name [6]
+    ##   station_name train_lines income  long   lat total_entries_2…
+    ##   <chr>        <chr>        <dbl> <dbl> <dbl>            <dbl>
+    ## 1 1 AVE        L            74965 -74.0  40.7            32906
+    ## 2 103 ST       BC           15455 -74.0  40.8             4390
+    ## 3 104 ST       JZ           83571 -73.8  40.7             2706
+    ## 4 111 ST       J           124699 -73.8  40.7             2348
+    ## 5 116 ST       BC           39596 -74.0  40.8            14182
+    ## 6 121 ST       JZ           22970 -73.8  40.7             2156
+    ## # … with 3 more variables: total_entries_2020_03_27 <dbl>,
+    ## #   total_exits_2020_02_27 <dbl>, total_exits_2020_03_27 <dbl>
+
+Now we can calculate the difference for entries and
+exits.
+
+``` r
+mta_daydif <- mta_daydif %>% mutate(entry_dif = total_entries_2020_02_27 - total_entries_2020_03_27, 
+                                    exit_dif = total_exits_2020_02_27 - total_exits_2020_03_27) %>%
+  select(-c(total_entries_2020_02_27:total_exits_2020_03_27))
+head(mta_daydif)
+```
+
+    ## # A tibble: 6 x 7
+    ## # Groups:   station_name [6]
+    ##   station_name train_lines income  long   lat entry_dif exit_dif
+    ##   <chr>        <chr>        <dbl> <dbl> <dbl>     <dbl>    <dbl>
+    ## 1 1 AVE        L            74965 -74.0  40.7     29434    38556
+    ## 2 103 ST       BC           15455 -74.0  40.8      3737     2020
+    ## 3 104 ST       JZ           83571 -73.8  40.7      2264     1094
+    ## 4 111 ST       J           124699 -73.8  40.7      1925     1050
+    ## 5 116 ST       BC           39596 -74.0  40.8     11512     6908
+    ## 6 121 ST       JZ           22970 -73.8  40.7      1690      948
+
+Let’s try graphing. It’s supposed to make the size based on entries and
+the color based on
+income.
+
+``` r
+ggplot(mta_daydif) + geom_point(aes(x=long, y = lat, size = entry_dif, color = income, alpha = .1)) + 
+  theme(legend.position = "none")
+```
+
+![](turnstile_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+It’s not what we want but it’s a start.

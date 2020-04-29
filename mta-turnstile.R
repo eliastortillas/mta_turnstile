@@ -51,7 +51,15 @@ mta$new_scp <- new_scp
 # Notice that the negative new entries/exits match new_scp (and I fixed one in line 43)
 mta_cleanr <- mta %>%
   filter(new_scp == F) %>% 
-  select(date_time,STATION, LINENAME, SCP, ENTRIES, new_entries, new_exits, just_date, just_time)
+  select(date_time,
+         station_name = STATION, 
+         train_lines = LINENAME, 
+         scp = SCP, 
+         entries_obsolete= ENTRIES, 
+         entries = new_entries, 
+         exits = new_exits, 
+         date = just_date, 
+         time = just_time)
 head(mta_cleanr, 10)
 # write_csv(mta_cleanr, "~/interactives/mta_turnstile/data/export/mta_clean.csv")
 
@@ -64,19 +72,19 @@ head(mta_cleanr)
 #This will take the total rides per day and the average rides every four hours. 
 mta_perday <-
   mta_cleanr %>%
-  group_by(STATION, just_date) %>%
-  summarise(avg_entries = mean(new_entries), # avg is four each unit of time data was collected, four hours
-            total_entries = sum(new_entries),
-            avg_exits = mean(new_exits),
-            total_exits = sum(new_exits)) %>%
-  filter(just_date != "1899-12-31") # This date gets included for some reason
+  group_by(station_name, date) %>%
+  summarise(avg_entries = mean(entries), # avg is four each unit of time data was collected, four hours
+            total_entries = sum(entries),
+            avg_exits = mean(exits),
+            total_exits = sum(exits)) %>%
+  filter(date != "1899-12-31") # This date gets included for some reason
 head(mta_perday, 10)
 
 
 
 # Time to graph to it.
-mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
-  mutate(month_day = str_sub(just_date, 6,10)) %>%
+mta_perday %>% filter(station_name == "14 ST-UNION SQ") %>%
+  mutate(month_day = str_sub(date, 6,10)) %>%
   ggplot(aes(x = month_day, y = total_entries)) +
   geom_bar(stat = "identity") +
   ylab("Daily turnstiles entries") + xlab("Date") + 
@@ -86,34 +94,85 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
 
 # Going to add the geolocated-income data from Sam
 geo_income <- read_csv("~/interactives/mta_turnstile/data/2018-med-income-ACS_by_subway-station - 2018-med-income-ACS_by_subway-station.csv")
-select(geo_income, -the_geom)
+geo_income$income <- geo_income$ct_median_income_2018_ACS %>% 
+  str_remove("[:punct:]") %>%
+  str_sub(2)
 
-mta_stations <- mta_cleanr$STATION %>% unique %>% data_frame(station_names=.) 
-geo_station <- geo_income$station_name %>% unique %>% data_frame(station_names=.)
-both_station_names <- c(mta_stations$station_names, geo_station$station_names) %>% sort()
+
+
+mta_stations <- mta_cleanr$station_name %>% unique %>% data_frame(station_name=.) 
+geo_station <- geo_income$station_name %>% unique %>% data_frame(station_name=.)
+both_station_names <- c(mta_stations$station_name, geo_station$station_name) %>% sort()
 both_station_names
 
 # Let's look at stations that include "PARKSIDE"
-both_station_names[str_which(both_station_names, "PARKSIDE")] %>% sort
+both_station_names[str_which(both_station_names, "PARKSIDE")] 
 
 #need to switch "av" to "ave" in mta data. idk why this is so hard.
 # First we need to check how "av" is written and not correct the "aves"
 mta_cleanr$ave_true <- FALSE
-mta_cleanr$ave_true[str_which(mta_cleanr$STATION, "AVE")] <- TRUE
+mta_cleanr$ave_true[str_which(mta_cleanr$station_name, "AVE")] <- TRUE
 mta_cleanr$av_true <- FALSE
-mta_cleanr$av_true[str_which(mta_cleanr$STATION, "AV")] <- TRUE 
+mta_cleanr$av_true[str_which(mta_cleanr$station_name, "AV")] <- TRUE 
 mta_cleanr$av_not_ave <- FALSE
 mta_cleanr$av_not_ave[which(mta_cleanr$av_true == TRUE & mta_cleanr$ave_true == FALSE)] <- TRUE
-mta_cleanr$STATION[mta_cleanr$av_not_ave == T] <-
-  str_replace_all(mta_cleanr$STATION[mta_cleanr$av_not_ave == T], "AV", "AVE")
-sample_n(mta_cleanr[str_which(mta_cleanr$STATION, "AVE"),], 20)
+mta_cleanr$station_name[mta_cleanr$av_not_ave == T] <-
+  str_replace_all(mta_cleanr$station_name[mta_cleanr$av_not_ave == T], "AV", "AVE")
+mta_cleanr %>% 
+  slice(str_which(mta_cleanr$station_name, "AVE")) %>% 
+  select(date_time, station_name) %>% 
+  sample_n(20)
 
 
-mta_geo_messy <- full_join(x = mta_cleanr %>% select(station_name = STATION, train_lines = LINENAME, just_date,new_entries),
-                     y = geo_income %>% select(station_name, train_lines, income = ct_median_income_2018_ACS), 
+mta_geo_messy <- full_join(x = mta_cleanr %>% select(date_time, station_name, train_lines, entries, exits, date, time, scp),
+                     y = geo_income %>% select(station_name, borough,train_lines, long, lat, income , service, unit), 
                      by = c("station_name","train_lines"))
-mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(new_entries))
-mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(new_entries))
+mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(entries))
+mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(entries))
+
+# Now we've got a starting point for the turnstile data with geo-income. 
+
+mtageo_day <- mta_geo_messy %>% 
+  group_by(date, station_name, train_lines) %>%
+  summarise(total_entries = sum(entries), 
+            total_exits = sum(exits),
+            income = income[1], 
+            long= long[1], 
+            lat = lat[1]) %>%
+  filter(date == "2020-02-27" | date == "2020-03-27") %>% # We're going to compare these two days
+  filter(!is.na(income) & !is.na(long) & !is.na(lat)) %>%
+  arrange(station_name)
+
+mta_daydif <- mtageo_day %>%  pivot_wider(names_from = date, values_from = c(total_entries, total_exits)) 
+colnames(mta_daydif)  <- colnames(mta_daydif) %>% str_replace_all("-","_")  
+mta_daydif <- mta_daydif %>% mutate(entry_dif = total_entries_2020_02_27 - total_entries_2020_03_27, 
+                                    exit_dif = total_exits_2020_02_27 - total_exits_2020_03_27) %>%
+  select(-c(total_entries_2020_02_27:total_exits_2020_03_27))
+
+#Time to graph
+mta_daydif$income <- as.numeric(mta_daydif$income)
+ggplot(mta_daydif) + geom_point(aes(x=long, y = lat, size = entry_dif, color = income, alpha = .1)) + 
+  theme(legend.position = "none")
+
+
+#This isn't  what we want but it's a start. 
+            
+
+
+
+# I could have done this in the same data set but this way we're seeing all the calculations
+# We're going to look at the difference in ridership between Feb and March
+
+
+str(mtageo_day)
+mtageo_day$income <- as.numeric(mtageo_day$income)
+hist(as.numeric(mtageo_day$income))
+  
+
+  
+  
+
+
 
 # Average traffic at station per day
 # Compare cumulative hourly over a few days
