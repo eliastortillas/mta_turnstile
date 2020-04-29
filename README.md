@@ -145,7 +145,7 @@ head(mta_cleanr, 10)
 # I did this on my computer with the whole file. i'll use this later. 
 ```
 
-We have a our data in a form we can use now.
+I have a the data in a form I can use now.
 
 ``` r
 #overwriting the above file to access the whole file (it's big af)
@@ -227,7 +227,7 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
 
 ![](turnstile_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-Now we’re going to combine the the income-geolocated data from Sam. Also
+Now I’m going to combine the the income-geolocated data from Sam. Also
 going to read in the full cleaned up data, mta\_cleanr. (I just did this
 to save time compiling on my
 computer)
@@ -285,7 +285,7 @@ head(mta_perday)
     ## 5 1 AV    2020-02-26       294.          16167     375.        20627
     ## 6 1 AV    2020-02-27       299.          16453     403.        22173
 
-We;re going to want to combine the data by station name so let’s compare
+I’m going to want to combine the data by station name so let’s compare
 the names in both data
 frames.
 
@@ -525,21 +525,125 @@ sort(both_station_names)
     ## [679] "ZEREGA AVE"
 
 Most of them look the same but a lot are different. Let’s look at
-stations that include “42” for 42nd street and we can see the
-discrepincies.
+stations that include “PARKSIDE”.
 
 ``` r
-both_station_names[str_which(both_station_names, "42")]
+both_station_names[str_which(both_station_names, "PARKSIDE")]
 ```
 
-    ## [1] "TIMES SQ-42 ST"  "42 ST-PORT AUTH" "42 ST-BRYANT PK" "GRD CNTRL-42 ST"
-    ## [5] "42 ST-PA BUS TE" "42 ST-TIMES SQ"  "42 ST-BRYANT PK" "42 ST-GRD CNTRL"
-    ## [9] "242 ST"
+    ## [1] "PARKSIDE AV"  "PARKSIDE AVE"
+
+First I’m going to change all the “AV”s to “AVE”s. in the mta\_cleanr
+dataset. But I need to make sure not to turn “AVE” into “AVEE” (because
+it already has an “AV” inside).This is makes it a little harder.
 
 ``` r
-both_station_names[str_which(both_station_names, "42")] %>% sort
+#need to switch "av" to "ave" in mta data. idk why this is so hard.
+# First we need to check how "av" is written and not correct the "aves"
+mta_cleanr$ave_true <- FALSE
+mta_cleanr$ave_true[str_which(mta_cleanr$STATION, "AVE")] <- TRUE
+mta_cleanr$av_true <- FALSE
+mta_cleanr$av_true[str_which(mta_cleanr$STATION, "AV")] <- TRUE 
+mta_cleanr$av_not_ave <- FALSE
+mta_cleanr$av_not_ave[which(mta_cleanr$av_true == TRUE & mta_cleanr$ave_true == FALSE)] <- TRUE
+mta_cleanr$STATION[mta_cleanr$av_not_ave == T] <-
+  str_replace_all(mta_cleanr$STATION[mta_cleanr$av_not_ave == T], "AV", "AVE")
 ```
 
-    ## [1] "242 ST"          "42 ST-BRYANT PK" "42 ST-BRYANT PK" "42 ST-GRD CNTRL"
-    ## [5] "42 ST-PA BUS TE" "42 ST-PORT AUTH" "42 ST-TIMES SQ"  "GRD CNTRL-42 ST"
-    ## [9] "TIMES SQ-42 ST"
+Let’s take a peak at our
+product
+
+``` r
+mta_cleanr %>% slice(str_which(mta_cleanr$STATION, "AVE")) %>% select(date_time, STATION) %>% sample_n(20)
+```
+
+    ## # A tibble: 20 x 2
+    ##    date_time           STATION         
+    ##    <dttm>              <chr>           
+    ##  1 2020-03-24 17:00:00 FLUSHING AVE    
+    ##  2 2020-03-07 11:00:00 METROPOLITAN AVE
+    ##  3 2020-03-22 00:00:00 BAY RIDGE AVE   
+    ##  4 2020-03-04 03:00:00 AVENUE P        
+    ##  5 2020-03-13 08:00:00 WOODHAVEN BLVD  
+    ##  6 2020-03-27 13:00:00 LAFAYETTE AVE   
+    ##  7 2020-03-17 16:00:00 LEXINGTON AVE/53
+    ##  8 2020-03-09 00:00:00 MORGAN AVE      
+    ##  9 2020-02-25 15:00:00 18 AVE          
+    ## 10 2020-03-14 17:00:00 FLUSHING AVE    
+    ## 11 2020-03-27 13:00:00 DITMAS AVE      
+    ## 12 2020-03-01 04:00:00 LAFAYETTE AVE   
+    ## 13 2020-03-20 17:00:00 UTICA AVE       
+    ## 14 2020-03-27 05:00:00 WOODHAVEN BLVD  
+    ## 15 2020-03-18 13:00:00 RALPH AVE       
+    ## 16 2020-03-24 12:00:00 CLINTON-WASH AVE
+    ## 17 2020-02-22 03:00:00 PROSPECT AVE    
+    ## 18 2020-03-22 05:00:00 NEW UTRECHT AVE 
+    ## 19 2020-02-24 07:00:00 MORGAN AVE      
+    ## 20 2020-03-12 08:00:00 AVENUE H
+
+Looks good. Now I’m going to join the MTA turnstile data with the
+geo-income data. Not all of is going to join correctly so I’ll make a
+dataframe for the whole messy product, just the ones that did join, and
+just the ones that
+didn’t.
+
+``` r
+mta_geo_messy <- full_join(x = mta_cleanr %>% select(station_name = STATION, train_lines = LINENAME, just_date,new_entries),
+                     y = geo_income %>% select(station_name, train_lines, income = ct_median_income_2018_ACS), 
+                     by = c("station_name","train_lines"))
+mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(new_entries))
+sample_n(mta_geo, 20)
+```
+
+    ## # A tibble: 20 x 5
+    ##    station_name    train_lines just_date  new_entries income  
+    ##    <chr>           <chr>       <date>           <dbl> <chr>   
+    ##  1 FULTON ST       ACJZ2345    2020-03-05           2 $159,911
+    ##  2 CHURCH AVE      BQ          2020-03-02          85 $55,272 
+    ##  3 34 ST-PENN STA  ACE         2020-02-24          27 $100,813
+    ##  4 NOSTRAND AVE    AC          2020-03-25          19 $44,973 
+    ##  5 FT HAMILTON PKY N           2020-03-16         136 $60,833 
+    ##  6 20 AVE          D           2020-02-29         247 $0      
+    ##  7 34 ST-PENN STA  ACE         2020-03-03          28 $100,813
+    ##  8 BAY RIDGE-95 ST R           2020-03-24           0 $34,167 
+    ##  9 TWENTY THIRD ST 1           2020-02-26           1 $121,183
+    ## 10 BOWLING GREEN   45          2020-02-26           1 $108,250
+    ## 11 111 ST          J           2020-02-29          65 $124,699
+    ## 12 34 ST-PENN STA  ACE         2020-03-14           0 $100,813
+    ## 13 FULTON ST       ACJZ2345    2020-03-04         318 $159,911
+    ## 14 86 ST           BC          2020-03-24           0 $15,455 
+    ## 15 EUCLID AVE      AC          2020-03-20           0 $35,338 
+    ## 16 34 ST-PENN STA  ACE         2020-02-24         133 $100,813
+    ## 17 ST. GEORGE      1           2020-03-12          39 $77,917 
+    ## 18 75 AVE          EF          2020-03-15           0 $86,750 
+    ## 19 50 ST           CE          2020-03-13          13 $31,250 
+    ## 20 DEKALB AVE      BDNQR       2020-03-15          31 $105,042
+
+``` r
+mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(new_entries))
+sample_n(mta_geo_unjoined, 20)
+```
+
+    ## # A tibble: 20 x 5
+    ##    station_name     train_lines  just_date  new_entries income
+    ##    <chr>            <chr>        <date>           <dbl> <chr> 
+    ##  1 JKSN HT-ROOSVLT  EFMR7        2020-03-14         137 <NA>  
+    ##  2 45               IRT          1899-12-31          15 <NA>  
+    ##  3 1                IRT          1899-12-31     -389671 <NA>  
+    ##  4 1ABCD            IRT          1899-12-31          12 <NA>  
+    ##  5 7                IRT          1899-12-31           0 <NA>  
+    ##  6 4AVE-9 ST        DFGMNR       2020-03-23          32 <NA>  
+    ##  7 6                IRT          1899-12-31           1 <NA>  
+    ##  8 JAMAICA 179 ST   F            2020-03-25           8 <NA>  
+    ##  9 1AC              IRT          1899-12-31       -9401 <NA>  
+    ## 10 PATH NEW WTC     1            2020-03-07           0 <NA>  
+    ## 11 GRD CNTRL-42 ST  4567S        2020-03-19         222 <NA>  
+    ## 12 NEWARK HW BMEBE  1            2020-03-25           0 <NA>  
+    ## 13 1                IRT          1899-12-31           6 <NA>  
+    ## 14 42 ST-PORT AUTH  ACENQRS1237W 2020-03-01         290 <NA>  
+    ## 15 6                IRT          1899-12-31       58628 <NA>  
+    ## 16 METROPOLITAN AVE GL           2020-02-23          17 <NA>  
+    ## 17 BOROUGH HALL     2345R        2020-03-09         432 <NA>  
+    ## 18 23               IRT          1899-12-31         104 <NA>  
+    ## 19 34               IRT          1899-12-31           0 <NA>  
+    ## 20 LEXINGTON AVE/63 F            2020-03-19           3 <NA>

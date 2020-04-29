@@ -5,10 +5,11 @@ library(readxl)
 
 ## IMPORT AND CLEAN THE DATA
 
-setwd("~/interactives/mta_turnstile") 
-list.files()
-mta <- read_excel("/Users/eliasguerra/interactives/mta_turnstile/data/turnstile-200222-200327.xlsx") # read_excel from readr
+list.files("~/interactives/mta_turnstile")
+mta <- read_excel("~/interactives/mta_turnstile/data/turnstile-200222-200327.xlsx") # read_excel from readr
 str(mta)
+View(head(mta, 1000))
+View(sample_n(mta, 1000) )
 
 # mta_14st <- filter(mta, STATION == "14 ST-UNION SQ")
 # write_csv(mta_14st, "/Users/eliasguerra/interactives/mta-turnstile/data/mta_example14st.csv")
@@ -84,21 +85,35 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
 
 
 # Going to add the geolocated-income data from Sam
-data_files <- list.files("~/interactives/mta_turnstile/data")
-setwd("~/interactives/mta_turnstile/data")
-geo_income <- read_csv(data_files[1])
+geo_income <- read_csv("~/interactives/mta_turnstile/data/2018-med-income-ACS_by_subway-station - 2018-med-income-ACS_by_subway-station.csv")
 select(geo_income, -the_geom)
 
-mta_stations <- mta_perday$STATION %>% unique %>% data_frame(station_names=.) 
+mta_stations <- mta_cleanr$STATION %>% unique %>% data_frame(station_names=.) 
 geo_station <- geo_income$station_name %>% unique %>% data_frame(station_names=.)
 both_station_names <- c(mta_stations$station_names, geo_station$station_names) %>% sort()
 both_station_names
 
-# Let's look at stations that include "42"
-both_station_names[str_which(both_station_names, "42")] %>% sort
+# Let's look at stations that include "PARKSIDE"
+both_station_names[str_which(both_station_names, "PARKSIDE")] %>% sort
+
+#need to switch "av" to "ave" in mta data. idk why this is so hard.
+# First we need to check how "av" is written and not correct the "aves"
+mta_cleanr$ave_true <- FALSE
+mta_cleanr$ave_true[str_which(mta_cleanr$STATION, "AVE")] <- TRUE
+mta_cleanr$av_true <- FALSE
+mta_cleanr$av_true[str_which(mta_cleanr$STATION, "AV")] <- TRUE 
+mta_cleanr$av_not_ave <- FALSE
+mta_cleanr$av_not_ave[which(mta_cleanr$av_true == TRUE & mta_cleanr$ave_true == FALSE)] <- TRUE
+mta_cleanr$STATION[mta_cleanr$av_not_ave == T] <-
+  str_replace_all(mta_cleanr$STATION[mta_cleanr$av_not_ave == T], "AV", "AVE")
+sample_n(mta_cleanr[str_which(mta_cleanr$STATION, "AVE"),], 20)
 
 
-  
+mta_geo_messy <- full_join(x = mta_cleanr %>% select(station_name = STATION, train_lines = LINENAME, just_date,new_entries),
+                     y = geo_income %>% select(station_name, train_lines, income = ct_median_income_2018_ACS), 
+                     by = c("station_name","train_lines"))
+mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(new_entries))
+mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(new_entries))
 
 # Average traffic at station per day
 # Compare cumulative hourly over a few days

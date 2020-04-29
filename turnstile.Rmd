@@ -82,7 +82,7 @@ head(mta_cleanr, 10)
 # I did this on my computer with the whole file. i'll use this later. 
 ```
 
-We have a our data in a form we can use now.
+I have a the data in a form I can use now.
 
 ``` {r}
 #overwriting the above file to access the whole file (it's big af)
@@ -111,7 +111,7 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
   coord_flip() 
 ```
 
-Now we're going to combine the the income-geolocated data from Sam. Also going to read in the full cleaned up data, mta_cleanr. (I just did this to save time compiling on my computer)
+Now I'm going to combine the the income-geolocated data from Sam. Also going to read in the full cleaned up data, mta_cleanr. (I just did this to save time compiling on my computer)
 
 ```{r}
 geo_income <- read_csv("~/interactives/mta_turnstile/data/2018-med-income-ACS_by_subway-station - 2018-med-income-ACS_by_subway-station.csv")
@@ -123,7 +123,7 @@ head(select(geo_income, -the_geom)) #left out one column for mapping
 head(mta_perday)
 ```
 
-We;re going to want to combine the data by station name so let's compare the names in both data frames.
+I'm going to want to combine the data by station name so let's compare the names in both data frames.
 
 ```{r}
 mta_stations <- mta_cleanr$STATION %>% unique %>% tibble(station_names=.) 
@@ -133,12 +133,42 @@ sort(both_station_names)
 ```
 
 Most of them look the same but a lot are different. 
-Let's look at stations that include "42" for 42nd street and we can see the discrepincies. 
+Let's look at stations that include "PARKSIDE".
 
 ```{r}
-both_station_names[str_which(both_station_names, "42")]
-both_station_names[str_which(both_station_names, "42")] %>% sort
+both_station_names[str_which(both_station_names, "PARKSIDE")]
 ```
+
+First I'm going to change all the "AV"s to "AVE"s. in the mta_cleanr dataset. But I need to make sure not to turn "AVE" into "AVEE" (because it already has an "AV" inside).This is makes it a little harder. 
+
+```{r}
+#need to switch "av" to "ave" in mta data. idk why this is so hard.
+# First we need to check how "av" is written and not correct the "aves"
+mta_cleanr$ave_true <- FALSE
+mta_cleanr$ave_true[str_which(mta_cleanr$STATION, "AVE")] <- TRUE
+mta_cleanr$av_true <- FALSE
+mta_cleanr$av_true[str_which(mta_cleanr$STATION, "AV")] <- TRUE 
+mta_cleanr$av_not_ave <- FALSE
+mta_cleanr$av_not_ave[which(mta_cleanr$av_true == TRUE & mta_cleanr$ave_true == FALSE)] <- TRUE
+mta_cleanr$STATION[mta_cleanr$av_not_ave == T] <-
+  str_replace_all(mta_cleanr$STATION[mta_cleanr$av_not_ave == T], "AV", "AVE")
+```
+Let's take a peak at our product
+```{r}
+mta_cleanr %>% slice(str_which(mta_cleanr$STATION, "AVE")) %>% select(date_time, STATION) %>% sample_n(20)
+```
+Looks good. Now I'm going to join the MTA turnstile data with the geo-income data. Not all of is going to join correctly so I'll make a dataframe for the whole messy product, just the ones that did join, and just the ones that didn't. 
+
+```{r}
+mta_geo_messy <- full_join(x = mta_cleanr %>% select(station_name = STATION, train_lines = LINENAME, just_date,new_entries),
+                     y = geo_income %>% select(station_name, train_lines, income = ct_median_income_2018_ACS), 
+                     by = c("station_name","train_lines"))
+mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(new_entries))
+sample_n(mta_geo, 20)
+mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(new_entries))
+sample_n(mta_geo_unjoined, 20)
+```
+
 
 
 
