@@ -52,6 +52,13 @@ mta_cleanr <- mta %>%
   filter(new_scp == F) %>% 
   select(date_time,STATION, LINENAME, SCP, ENTRIES, new_entries, new_exits, just_date, just_time)
 head(mta_cleanr, 10)
+# write_csv(mta_cleanr, "~/interactives/mta_turnstile/data/export/mta_clean.csv")
+
+# We have a our data in a form we can use now.
+head(mta_cleanr)
+# write_csv(mta_cleanr, "~/interactives/mta_turnstile/data/export/mta_clean.csv") 
+# Only running ^this once for now in case you want to access it and then download it urself
+# mta_cleeeean <- read_csv("~/interactives/mta_turnstile/data/export/mta_clean.csv")
 
 #This will take the total rides per day and the average rides every four hours. 
 mta_perday <-
@@ -64,8 +71,7 @@ mta_perday <-
   filter(just_date != "1899-12-31") # This date gets included for some reason
 head(mta_perday, 10)
 
-# We have a our data in a form we can use now.
-head(mta_cleanr)
+
 
 # Time to graph to it.
 mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
@@ -77,23 +83,20 @@ mta_perday %>% filter(STATION == "14 ST-UNION SQ") %>%
   coord_flip() 
 
 
-# MTA geocoded data from Christopher Whong 
-# https://github.com/chriswhong/nycturnstiles/blob/master/geocoded.csv
+# Going to add the geolocated-income data from Sam
 data_files <- list.files("~/interactives/mta_turnstile/data")
 setwd("~/interactives/mta_turnstile/data")
 geo_income <- read_csv(data_files[1])
-View(head(geo_income))
-View(head(mta_perday))
 select(geo_income, -the_geom)
 
 mta_stations <- mta_perday$STATION %>% unique %>% data_frame(station_names=.) 
 geo_station <- geo_income$station_name %>% unique %>% data_frame(station_names=.)
-overlapping_stations <- c(mta_stations$station_names, geo_station$station_names)
-unique(overlapping_stations) %>% sort()
+both_station_names <- c(mta_stations$station_names, geo_station$station_names) %>% sort()
+both_station_names
 
 # Let's look at stations that include "42"
-st42 <- overlapping_stations[str_which(overlapping_stations, "42")]
-unique(st42)
+both_station_names[str_which(both_station_names, "42")] %>% sort
+
 
   
 
