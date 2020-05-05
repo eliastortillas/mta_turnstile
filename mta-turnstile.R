@@ -128,7 +128,9 @@ mta_geo_messy <- full_join(x = mta_cleanr %>% select(date_time, station_name, tr
                      y = geo_income %>% select(station_name, borough,train_lines, long, lat, income , service, unit), 
                      by = c("station_name","train_lines"))
 mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(entries))
+# write_csv(mta_geo, "~/interactives/mta_turnstile/data/export/mta-geo-inc-joined.csv")
 mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(entries))
+# write_csv(mta_geo_unjoined, "~/interactives/mta_turnstile/data/export/mta-geo-inc-unjoined.csv")
 
 # Now we've got a starting point for the turnstile data with geo-income. 
 
@@ -151,6 +153,7 @@ mta_daydif <- mta_daydif %>% mutate(entry_dif = total_entries_2020_02_27 - total
 
 #Time to graph
 mta_daydif$income <- as.numeric(mta_daydif$income)
+# write_csv(mta_daydif, "~/interactives/mta_turnstile/data/export/mta-compare27th-onlyhalf.csv")
 ggplot(mta_daydif) + geom_point(aes(x=long, y = lat, size = entry_dif, color = income, alpha = .1)) + 
   theme(legend.position = "none")
 
@@ -158,21 +161,4 @@ ggplot(mta_daydif) + geom_point(aes(x=long, y = lat, size = entry_dif, color = i
 #This isn't  what we want but it's a start. 
             
 
-
-
-# I could have done this in the same data set but this way we're seeing all the calculations
-# We're going to look at the difference in ridership between Feb and March
-
-
-str(mtageo_day)
-mtageo_day$income <- as.numeric(mtageo_day$income)
-hist(as.numeric(mtageo_day$income))
-  
-
-  
-  
-
-
-
-# Average traffic at station per day
-# Compare cumulative hourly over a few days
+View(mta_geo_unjoined)

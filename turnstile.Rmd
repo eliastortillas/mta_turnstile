@@ -175,7 +175,10 @@ mta_geo_messy <- full_join(x = mta_cleanr %>% select(date_time, station_name, tr
                            y = geo_income %>% select(station_name, borough,train_lines, long, lat, income, service, unit), 
                            by = c("station_name","train_lines"))
 mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(entries))
+# write_csv(mta_geo, "~/interactives/mta_turnstile/data/export/mta-geo-inc-joined.csv")
 mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(entries))
+# write_csv(mta_geo_unjoined, "~/interactives/mta_turnstile/data/export/mta-geo-inc-unjoined.csv")
+# both of ^these are available in this github
 sample_n(mta_geo_unjoined, 20)
 ```
 
@@ -208,6 +211,8 @@ Now we can calculate the difference for entries and exits.
 mta_daydif <- mta_daydif %>% mutate(entry_dif = total_entries_2020_02_27 - total_entries_2020_03_27, 
                                     exit_dif = total_exits_2020_02_27 - total_exits_2020_03_27) %>%
   select(-c(total_entries_2020_02_27:total_exits_2020_03_27))
+# write_csv(mta_daydif, "~/interactives/mta_turnstile/data/export/mta-compare27th-onlyhalf.csv") 
+# I've saved a copy from my computer to Github ^here
 head(mta_daydif)
 ```
 
