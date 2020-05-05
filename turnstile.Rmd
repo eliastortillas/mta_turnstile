@@ -224,4 +224,3 @@ ggplot(mta_daydif) + geom_point(aes(x=long, y = lat, size = entry_dif, color = i
 ```
 
 It's not what we want but it's a start. 
-

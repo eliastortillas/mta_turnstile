@@ -572,26 +572,26 @@ mta_cleanr %>%
     ## # A tibble: 20 x 2
     ##    date_time           station_name    
     ##    <dttm>              <chr>           
-    ##  1 2020-02-28 04:00:00 FLUSHING AVE    
-    ##  2 2020-02-24 08:00:00 96 ST-2 AVE     
-    ##  3 2020-03-12 17:00:00 7 AVE           
-    ##  4 2020-03-16 04:00:00 BEDFORD AVE     
-    ##  5 2020-03-24 13:00:00 VAN SICLEN AVE  
-    ##  6 2020-02-24 19:00:00 57 ST-7 AVE     
-    ##  7 2020-02-22 19:00:00 EUCLID AVE      
-    ##  8 2020-03-27 17:00:00 NEW UTRECHT AVE 
-    ##  9 2020-03-27 05:00:00 7 AVE           
-    ## 10 2020-03-22 05:00:00 NEW UTRECHT AVE 
-    ## 11 2020-03-07 03:00:00 BEDFORD AVE     
-    ## 12 2020-03-22 01:00:00 DITMAS AVE      
-    ## 13 2020-02-24 16:00:00 8 AVE           
-    ## 14 2020-02-24 07:00:00 WOODHAVEN BLVD  
-    ## 15 2020-02-28 03:00:00 18 AVE          
-    ## 16 2020-03-25 09:00:00 RALPH AVE       
-    ## 17 2020-03-27 16:00:00 CLINTON-WASH AVE
-    ## 18 2020-03-24 13:00:00 8 AVE           
-    ## 19 2020-03-18 14:00:00 5 AVE/53 ST     
-    ## 20 2020-03-18 13:00:00 LAFAYETTE AVE
+    ##  1 2020-02-24 04:00:00 FRANKLIN AVE    
+    ##  2 2020-03-18 02:00:00 5 AVE/53 ST     
+    ##  3 2020-03-20 16:00:00 3 AVE           
+    ##  4 2020-03-24 13:00:00 LAFAYETTE AVE   
+    ##  5 2020-02-26 00:00:00 UTICA AVE       
+    ##  6 2020-03-12 12:00:00 GREENPOINT AVE  
+    ##  7 2020-03-07 04:00:00 DITMAS AVE      
+    ##  8 2020-02-24 08:00:00 96 ST-2 AVE     
+    ##  9 2020-03-15 00:00:00 75 AVE          
+    ## 10 2020-02-28 07:00:00 DEKALB AVE      
+    ## 11 2020-03-07 13:20:22 LEXINGTON AVE/63
+    ## 12 2020-03-27 08:00:00 PROSPECT AVE    
+    ## 13 2020-03-05 07:00:00 18 AVE          
+    ## 14 2020-03-16 04:00:00 18 AVE          
+    ## 15 2020-03-25 08:00:00 57 ST-7 AVE     
+    ## 16 2020-03-11 05:00:00 WOODHAVEN BLVD  
+    ## 17 2020-03-10 01:00:00 NEW UTRECHT AVE 
+    ## 18 2020-03-16 08:00:00 LEXINGTON AVE/63
+    ## 19 2020-03-01 00:00:00 96 ST-2 AVE     
+    ## 20 2020-03-07 19:00:00 LEXINGTON AVE/63
 
 Let’s take a peak at our product
 
@@ -605,26 +605,26 @@ mta_cleanr %>%
     ## # A tibble: 20 x 2
     ##    date_time           station_name    
     ##    <dttm>              <chr>           
-    ##  1 2020-02-29 12:00:00 72 ST-2 AVE     
-    ##  2 2020-02-23 07:00:00 2 AVE           
-    ##  3 2020-03-02 15:00:00 1 AVE           
-    ##  4 2020-03-25 17:00:00 AVENUE N        
-    ##  5 2020-03-15 17:00:00 FRANKLIN AVE    
-    ##  6 2020-03-14 13:00:00 WOODHAVEN BLVD  
-    ##  7 2020-02-29 00:00:00 CLINTON-WASH AVE
-    ##  8 2020-02-24 03:00:00 AVENUE H        
-    ##  9 2020-03-23 01:00:00 NORWOOD AVE     
-    ## 10 2020-02-29 16:00:00 UTICA AVE       
-    ## 11 2020-03-05 08:18:30 96 ST-2 AVE     
-    ## 12 2020-03-25 00:00:00 AVENUE M        
-    ## 13 2020-02-25 00:00:00 DITMAS AVE      
-    ## 14 2020-03-23 08:00:00 18 AVE          
-    ## 15 2020-03-15 17:00:00 8 AVE           
-    ## 16 2020-03-16 05:00:00 7 AVE           
-    ## 17 2020-02-22 00:00:00 CLINTON-WASH AVE
-    ## 18 2020-03-27 09:00:00 VAN SICLEN AVE  
-    ## 19 2020-03-04 07:00:00 NOSTRAND AVE    
-    ## 20 2020-03-01 19:00:00 WOODHAVEN BLVD
+    ##  1 2020-02-25 15:00:00 CHURCH AVE      
+    ##  2 2020-03-16 16:00:00 AVENUE J        
+    ##  3 2020-03-27 01:00:00 FLUSHING AVE    
+    ##  4 2020-02-24 11:00:00 CHURCH AVE      
+    ##  5 2020-03-13 01:00:00 FLUSHING AVE    
+    ##  6 2020-03-25 08:00:00 GRAHAM AVE      
+    ##  7 2020-03-05 13:51:13 DEKALB AVE      
+    ##  8 2020-03-02 12:00:00 MARCY AVE       
+    ##  9 2020-03-08 00:00:00 CENTRAL AVE     
+    ## 10 2020-03-24 16:00:00 ATL AVE-BARCLAY 
+    ## 11 2020-03-04 09:00:00 5 AVE/53 ST     
+    ## 12 2020-03-16 12:00:00 LEXINGTON AVE/53
+    ## 13 2020-03-13 04:00:00 WOODHAVEN BLVD  
+    ## 14 2020-02-23 07:00:00 57 ST-7 AVE     
+    ## 15 2020-03-16 04:00:00 67 AVE          
+    ## 16 2020-03-20 17:00:00 7 AVE           
+    ## 17 2020-02-22 00:00:00 7 AVE           
+    ## 18 2020-03-08 04:00:00 57 ST-7 AVE     
+    ## 19 2020-03-20 13:00:00 72 ST-2 AVE     
+    ## 20 2020-03-13 08:00:00 CHURCH AVE
 
 Looks good. Now I’m going to join the MTA turnstile data with the
 geo-income data. Not all of is going to join correctly so I’ll make a
@@ -637,33 +637,36 @@ mta_geo_messy <- full_join(x = mta_cleanr %>% select(date_time, station_name, tr
                            y = geo_income %>% select(station_name, borough,train_lines, long, lat, income, service, unit), 
                            by = c("station_name","train_lines"))
 mta_geo <- mta_geo_messy %>% filter(!is.na(income) & !is.na(entries))
+# write_csv(mta_geo, "~/interactives/mta_turnstile/data/export/mta-geo-inc-joined.csv")
 mta_geo_unjoined <- mta_geo_messy %>% filter(is.na(income) | is.na(entries))
+# write_csv(mta_geo_unjoined, "~/interactives/mta_turnstile/data/export/mta-geo-inc-unjoined.csv")
+# both of ^these are available in this github
 sample_n(mta_geo_unjoined, 20)
 ```
 
     ## # A tibble: 20 x 14
     ##    date_time           station_name train_lines entries exits date      
     ##    <dttm>              <chr>        <chr>         <dbl> <dbl> <date>    
-    ##  1 NA                  2345ACJZ     IRT               0    NA 1899-12-31
-    ##  2 NA                  7            IRT              41    NA 1899-12-31
-    ##  3 NA                  456JZ        IRT               4    NA 1899-12-31
-    ##  4 NA                  25           IRT             157    NA 1899-12-31
-    ##  5 2020-03-16 09:00:00 14 ST-UNION… LNQR456W        367   410 2020-03-16
-    ##  6 NA                  7            IRT               2    NA 1899-12-31
-    ##  7 NA                  25           IRT              33    NA 1899-12-31
-    ##  8 NA                  6            IRT              50    NA 1899-12-31
-    ##  9 NA                  7            IRT               4    NA 1899-12-31
-    ## 10 NA                  7            IRT              93    NA 1899-12-31
-    ## 11 NA                  1            IRT              14    NA 1899-12-31
-    ## 12 2020-03-01 17:07:36 JOURNAL SQU… 1               109    11 2020-03-01
-    ## 13 2020-02-27 08:00:00 FRESH POND … M               146    92 2020-02-27
-    ## 14 2020-03-19 12:00:00 WORLD TRADE… ACE23            22     3 2020-03-19
-    ## 15 NA                  1            IRT             736    NA 1899-12-31
-    ## 16 NA                  2345S        IRT              41    NA 1899-12-31
-    ## 17 2020-03-10 00:00:00 47-50 STS R… BDFM             85    19 2020-03-10
-    ## 18 2020-03-11 04:00:00 ATL AVE-BAR… BDNQR2345        80    82 2020-03-11
-    ## 19 NA                  1AC          IRT              98    NA 1899-12-31
-    ## 20 NA                  45           IRT              12    NA 1899-12-31
+    ##  1 NA                  1            IRT          5.20e1    NA 1899-12-31
+    ##  2 NA                  1            IRT          6.00e1    NA 1899-12-31
+    ##  3 2020-03-06 12:00:00 AVENUE I     F            3.20e1     8 2020-03-06
+    ##  4 2020-03-06 08:00:00 BAY PKWY     F            1.67e2    30 2020-03-06
+    ##  5 NA                  123          IRT          1.31e7    NA 1899-12-31
+    ##  6 NA                  1            IRT         -2.15e4    NA 1899-12-31
+    ##  7 NA                  1            IRT          4.00e1    NA 1899-12-31
+    ##  8 NA                  1            IRT          1.30e1    NA 1899-12-31
+    ##  9 2020-03-17 12:22:00 161/YANKEE … 4BD          0.         0 2020-03-17
+    ## 10 NA                  456          IRT          3.50e1    NA 1899-12-31
+    ## 11 NA                  2345ACJZ     IRT          4.60e1    NA 1899-12-31
+    ## 12 2020-03-12 00:00:00 GRD CNTRL-4… 4567S        1.48e2     7 2020-03-12
+    ## 13 2020-03-10 05:27:27 JOURNAL SQU… 1            5.96e2   133 2020-03-10
+    ## 14 NA                  25           IRT          1.74e2    NA 1899-12-31
+    ## 15 2020-03-01 15:00:00 42 ST-PORT … ACENQRS123… -1.62e2   163 2020-03-01
+    ## 16 2020-03-13 16:42:01 GROVE STREET 1            1.13e2   195 2020-03-13
+    ## 17 2020-03-19 12:00:00 ATL AVE-BAR… BDNQR2345    1.05e2    93 2020-03-19
+    ## 18 2020-03-14 01:00:00 JFK JAMAICA… E            3.80e1     8 2020-03-14
+    ## 19 NA                  456          IRT          1.39e2    NA 1899-12-31
+    ## 20 NA                  6            IRT          0.        NA 1899-12-31
     ## # … with 8 more variables: time <time>, scp <chr>, borough <chr>,
     ## #   long <dbl>, lat <dbl>, income <dbl>, service <chr>, unit <chr>
 
@@ -729,6 +732,8 @@ exits.
 mta_daydif <- mta_daydif %>% mutate(entry_dif = total_entries_2020_02_27 - total_entries_2020_03_27, 
                                     exit_dif = total_exits_2020_02_27 - total_exits_2020_03_27) %>%
   select(-c(total_entries_2020_02_27:total_exits_2020_03_27))
+# write_csv(mta_daydif, "~/interactives/mta_turnstile/data/export/mta-compare27th-onlyhalf.csv") 
+# I've saved a copy from my computer to Github ^here
 head(mta_daydif)
 ```
 
